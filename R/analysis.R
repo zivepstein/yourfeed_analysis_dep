@@ -1,91 +1,67 @@
-library(dplyr)
-mean_error <- function(data){
-  n <- sum(!is.na(data))
-  s <- sd(data,na.rm = T)
-  return(1.96*s/sqrt(n))
-}
-long <- read_csv("~/GDrive/research/yourfeed_analysis/data/soft_long.csv")
+library(lme4)
+library(lmerTest)
+options("scipen"=100, "digits"=4)
 
+#Compliance (fig 1)
+yourfeed <- c(923, 778, 747, 745, 710, 671, 600, 577, 566, 554, 543, 538, 532, 522, 494, 486)
+qualtrics <- c(936, 780, 755, 716, 716)
+qualtrics_x <- c(1, 2, 3, 4, 16)
+plot(1-yourfeed/923, ylim=c(0,.6), type="n", ylab= "Dropout Proportion", xlab = "")
+lines(qualtrics_x,1-qualtrics/936,  col='#4772db')
+lines(1-yourfeed/923,  col='#5c7e69')
+points(qualtrics_x,1-qualtrics/936,  col='#4772db', pch=16)
+points(1-yourfeed/923,  col='#5c7e69', pch=16)
 
-#preprocessing (to pipe into python eventually)
-long$veracity <- as.numeric(long$item > 70)
-long$crt <- (as.numeric(long$crt_ages == 4) + as.numeric(long$crt_printer == 10) + as.numeric(long$crt_bread == 39) + as.numeric(long$crt_race == 2) + as.numeric(long$crt_sheep == 8))/5
+#make data
+ul_raw <- read_csv("~/GDrive/research/yourfeed_analysis/data/yvq_user_level.csv")
+long_raw <- read_csv("~/GDrive/research/yourfeed_analysis/data/soft_long.csv")
+item_level <- read_csv("~/GDrive/research/yourfeed_analysis/data/aj_headlines.csv")
+long_raw$crt <- (as.numeric(long_raw$crt_ages == 4) + as.numeric(long_raw$crt_printer == 10) + as.numeric(long_raw$crt_bread == 39) + as.numeric(long_raw$crt_race == 2) + as.numeric(long_raw$crt_sheep == 8))/5
+item_level$real = as.numeric(!grepl("f_", item_level$filename))-0.5
+long <- long_raw %>% mutate(
+      crt = (as.numeric(crt_ages == 4) + as.numeric(crt_printer == 10) + as.numeric(crt_bread == 39) + as.numeric(crt_race == 2) + as.numeric(crt_sheep == 8))/5,
+      pk = as.numeric((pk1)==3) + as.numeric((pk2)==1)  + as.numeric((pk3)==3) + as.numeric((pk4)==1) + as.numeric((pk5)==3)
+      ) %>% filter(completed==1) %>% merge(item_level, all.x=T, by.x='item', by.y='index')
 
+ul <- ul_raw %>% merge(
+  long_raw %>% group_by(rid) %>% dplyr::summarise(
+    completed = mean(completed),
+    crt = mean(crt),
+    is_mobile = mean(is_mobile)
+  ), by='rid', all.x=T)
 
-order <- long %>% group_by(condition,order) %>% dplyr::summarize(y = mean(response), ci = mean_error(response))
-p <- plot(order[order$condition==0,]$order, order[order$condition==0,]$y, xlim=c(0,140), pch=21, bg='yellow', xlab = "Item order", ylab="Percent share")
-arrows(x0=order[order$condition==0,]$order,y0=order[order$condition==0,]$y-order[order$condition==0,]$ci, y1=order[order$condition==0,]$y+order[order$condition==0,]$ci, angle=90, code=3, length=0.05)
-points(order[order$condition==0,]$order, order[order$condition==0,]$y, bg='yellow', pch=21)
-arrows(x0=order[order$condition==1,]$order,y0=order[order$condition==1,]$y-order[order$condition==1,]$ci, y1=order[order$condition==1,]$y+order[order$condition==1,]$ci, angle=90, code=3, length=0.05)
-points(order[order$condition==1,]$order, order[order$condition==1,]$y, bg='green', pch=21)
+ul <- ul %>% mutate(
+  drop=1-coalesce(completed,0),
+  diglit = as.numeric(case_when(
+    Q259 ==3~ T,
+    Q261 ==3~T,
+    T ~F
+  ))
+) %>% filter(last_question != '7 social media' )
 
-ds <- long %>% filter(condition==1) %>% mutate(
-  has_dwell = 1-as.numeric(is.na(dwell))
-) %>% group_by(rid) %>% dplyr::summarize(
-  s = sum(has_dwell)
-  )
-table(ds$s) #66% the dwell thing doesnt work.... 
-
-debug <- long %>% filter(condition==1 & is.na(dwell))
-db <- debug %>% group_by(rid) %>% summarize(y=mean(response))
-write.csv(db, "~/GDrive/research/yourfeed_analysis/data/debug")
-long %>% group_by(rid) %>% summarize(y=mean(response))%>% select(y) %>% summary
-
-d <- long %>% filter(condition ==1 & !is.na(dwell)) %>% filter(dwell <quantile(dwell,0.95) )
-plot(d$response,d$dwell)
-d %>% filter(response==1) %>% select(dwell) 
-mean(d[d$response==1,]$dwell)
-mean(d[d$response==0,]$dwell)
-
-lmo <- lmer("response ~ veracity*condition + (1 | rid) + (1|item)",data=long); summary(lmo)
-lmo <- lmer("response ~ veracity*condition*crt + (1 | rid) + (1|item)",data=long); summary(lmo)
-
-bar<- long %>% group_by(condition, veracity) %>% dplyr::summarize(
+uld <- long %>% group_by(rid, real) %>% summarize(
   y = mean(response),
-  ci=mean_error(response))
-BarPlot <- barplot(t(matrix(bar$y,2 , 2, byrow=TRUE)), beside=TRUE, 
-                   ylab="Sharing intentions", 
-                   xlab="Condition", 
-                   main="Sharing by condition", 
-                   ylim=c(0, 1), 
-                   names.arg=c("Qualtrics", "YourFeed"), 
-                   col=colours)
-arrows(BarPlot, t(matrix(bar$y,2 , 2, byrow=TRUE))+t(matrix(bar$ci,2 , 2, byrow=TRUE)), BarPlot, t(matrix(bar$y,2 , 2, byrow=TRUE))-t(matrix(bar$ci,2 , 2, byrow=TRUE)), angle=90, code=3, length=0.05)
-
-ds
-
-
-peeps <- long %>% group_by(rid) %>% dplyr::summarise(
-  has_dwell = 1-is.na(sum(dwell))
+  condition = mean(condition),
+  crt = mean(crt),
+  pk= mean(pk)
+) %>% group_by(rid) %>% dplyr::summarize(
+  d = y[2] / (y[1] + y[2]),
+  condition = mean(condition),
+  crt = mean(crt),
+  pk= mean(pk)
 )
-table(peeps$condition, peeps$has_dwell)
 
-sth <- long %>% merge(peeps, by ='rid') %>% group_by(rid) %>% dplyr::summarise(
-  crt = max(crt),
-  has_dwell = max(has_dwell),
-  conditon = max(condition)
-) %>% mutate(
-  cohort = condition
-)
-table(sth$cohort)
-ggplot(sth,aes(x=crt,group=cohort,fill=cohort))+
-  geom_histogram(position="dodge",binwidth=0.25, stat="count")+theme_bw() +labs(x="Were any of these headlines tagged with a warning message?")
+#differential dropout
+summary(lm(drop ~ yourfeed* (crt + is_mobile + diglit), data=ul))
 
 
-x <- long %>% group_by(rid) %>% dplyr::summarise(
-  n= n(),
-  y=mean(response),
-  has_dwell = sum(1-is.na(dwell)),
-  completed = mean(completed),
-  condition = max(condition),
-  experiment_id = max(experiment_id)
-)# %>% group_by(experiment_id, condition) %>% dplyr::summarize(n=mean(d))
-table(x$condition, x$completed, x$has_dwell)
-table(x$completed, x$y>0)
-y <- x %>% filter(experiment_id == 6670 & condition ==0) %>% mutate(did_share = y>0)
-table(y$did_share, y$has_dwell, y$completed)
+#long level analysis
+m1 <- lmer("response ~ condition*real+ (1 + condition | item) + (1 + real | rid)", data =long) ; print(summary(m1), digits=3)
+#moderation analysis
+m2 <- lmer("response ~ condition*real*crt+ (1 | item) + (1 | rid)", data =long) ; print(summary(m2), digits=3)
+m3 <- lmer("response ~ condition*real*pk+ (1 | item) + (1 | rid)", data =long) ; print(summary(m3), digits=3)
 
-y%>% filter(!did_share & completed==0)
-
-y70 <- x %>% filter(experiment_id == 6667 & condition==1)
-table(y70$completed, y70$y>0)
+#novel discernment measure
+summary(lm(d ~ condition, data=uld))
+summary(lm(d ~ condition*crt, data=uld))
+summary(lm(d ~ condition*pk, data=uld))
