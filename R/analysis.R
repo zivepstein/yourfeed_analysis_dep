@@ -19,9 +19,9 @@ item_level <- read_csv("~/GDrive/research/yourfeed_analysis/data/aj_headlines.cs
 long_raw$crt <- (as.numeric(long_raw$crt_ages == 4) + as.numeric(long_raw$crt_printer == 10) + as.numeric(long_raw$crt_bread == 39) + as.numeric(long_raw$crt_race == 2) + as.numeric(long_raw$crt_sheep == 8))/5
 item_level$real = as.numeric(!grepl("f_", item_level$filename))-0.5
 long <- long_raw %>% mutate(
-      crt = (as.numeric(crt_ages == 4) + as.numeric(crt_printer == 10) + as.numeric(crt_bread == 39) + as.numeric(crt_race == 2) + as.numeric(crt_sheep == 8))/5,
-      pk = as.numeric((pk1)==3) + as.numeric((pk2)==1)  + as.numeric((pk3)==3) + as.numeric((pk4)==1) + as.numeric((pk5)==3)
-      ) %>% filter(completed==1) %>% merge(item_level, all.x=T, by.x='item', by.y='index')
+  crt = (as.numeric(crt_ages == 4) + as.numeric(crt_printer == 10) + as.numeric(crt_bread == 39) + as.numeric(crt_race == 2) + as.numeric(crt_sheep == 8))/5,
+  pk = as.numeric((pk1)==3) + as.numeric((pk2)==1)  + as.numeric((pk3)==3) + as.numeric((pk4)==1) + as.numeric((pk5)==3)
+) %>% filter(completed==1) %>% merge(item_level, all.x=T, by.x='item', by.y='index')
 
 ul <- ul_raw %>% merge(
   long_raw %>% group_by(rid) %>% dplyr::summarise(
