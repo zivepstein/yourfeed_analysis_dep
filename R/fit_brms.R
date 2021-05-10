@@ -25,7 +25,7 @@ fit <-
                 prior(lkj(2),            class = cor)), #prior on covariance structure. intercept and slope within cluster
       iter = 4000, warmup = 1000, chains = 4, cores = 4, seed = 42, #warmup=1000 is good. iter=3000 is chill too.  #1 chain per core 
       control = list(adapt_delta = 0.92), #not default, default = 0.8, if step size is too large,adjust 
-      file = "models/main")
+      file = "../models/main")
 
 fit <- 
   brm(data = long,
@@ -40,7 +40,7 @@ fit <-
                 prior(lkj(2),            class = cor)), #prior on covariance structure. intercept and slope within cluster
       iter = 4000, warmup = 1000, chains = 4, cores = 4, seed = 42, #warmup=1000 is good. iter=3000 is chill too.  #1 chain per core 
       control = list(adapt_delta = 0.92), #not default, default = 0.8, if step size is too large,adjust 
-      file = "models/crt_mod")
+      file = "../models/crt_mod")
 
 fit <- 
   brm(data = long,
@@ -55,4 +55,4 @@ fit <-
                 prior(lkj(2),            class = cor)), #prior on covariance structure. intercept and slope within cluster
       iter = 4000, warmup = 1000, chains = 4, cores = 4, seed = 42, #warmup=1000 is good. iter=3000 is chill too.  #1 chain per core 
       control = list(adapt_delta = 0.92), #not default, default = 0.8, if step size is too large,adjust 
-      file = "models/pk_mod")
+      file = "../models/pk_mod")
