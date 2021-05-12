@@ -62,20 +62,20 @@ yofo <- yf %>% dplyr::mutate(
   attend3 = 1/(1+exp(theta*(-2*B*((wdwell-min_dwell)/(max_dwell-min_dwell))+B)))
 )
 
-main <- 
-  brm(data = long,
-      family = gaussian,
-      formula = response~real*condition+
-        (1 +condition   | item) +
-        (1 + real | rid),
-      prior = c(prior(normal(0.5, 0.25), class = Intercept), #start with vague and uninformative prior - 0.5. 
-                prior(normal(0, 0.25),    class = b),#b is all the slopes. we expect >0 (maybe 0.05, change variation) #class = b, coef="veracity" #remove priors on 25+27 (21+22)
-                prior(exponential(14),   class = sd), #sd governs the SD of the fixed effects of the random cluster. can only be positive so exponential
-                prior(exponential(1),    class = sigma),  #noise param, whats left over. fine as exp(1). if zed(continuous) then easy to set as exp(1)
-                prior(lkj(2),            class = cor)), #prior on covariance structure. intercept and slope within cluster
-      iter = 4000, warmup = 1000, chains = 4, cores = 4, seed = 42, #warmup=1000 is good. iter=3000 is chill too.  #1 chain per core 
-      control = list(adapt_delta = 0.92), #not default, default = 0.8, if step size is too large,adjust 
-      file = "../models/main")
+# main <- 
+#   brm(data = long,
+#       family = gaussian,
+#       formula = response~real*condition+
+#         (1 +condition   | item) +
+#         (1 + real | rid),
+#       prior = c(prior(normal(0.5, 0.25), class = Intercept), #start with vague and uninformative prior - 0.5. 
+#                 prior(normal(0, 0.25),    class = b),#b is all the slopes. we expect >0 (maybe 0.05, change variation) #class = b, coef="veracity" #remove priors on 25+27 (21+22)
+#                 prior(exponential(14),   class = sd), #sd governs the SD of the fixed effects of the random cluster. can only be positive so exponential
+#                 prior(exponential(1),    class = sigma),  #noise param, whats left over. fine as exp(1). if zed(continuous) then easy to set as exp(1)
+#                 prior(lkj(2),            class = cor)), #prior on covariance structure. intercept and slope within cluster
+#       iter = 4000, warmup = 1000, chains = 4, cores = 4, seed = 42, #warmup=1000 is good. iter=3000 is chill too.  #1 chain per core 
+#       control = list(adapt_delta = 0.92), #not default, default = 0.8, if step size is too large,adjust 
+#       file = "../models/main")
 
 crt_mod <- 
   brm(data = long,
@@ -88,118 +88,118 @@ crt_mod <-
                 prior(exponential(14),   class = sd), #sd governs the SD of the fixed effects of the random cluster. can only be positive so exponential
                 prior(exponential(1),    class = sigma),  #noise param, whats left over. fine as exp(1). if zed(continuous) then easy to set as exp(1)
                 prior(lkj(2),            class = cor)), #prior on covariance structure. intercept and slope within cluster
-      iter = 4000, warmup = 1000, chains = 4, cores = 4, seed = 42, #warmup=1000 is good. iter=3000 is chill too.  #1 chain per core 
+      iter = 5000, warmup = 1000, chains = 4, cores = 4, seed = 42, #warmup=1000 is good. iter=3000 is chill too.  #1 chain per core 
       control = list(adapt_delta = 0.92), #not default, default = 0.8, if step size is too large,adjust 
       file = "../models/crt_mod")
-
-pk_mod <- 
-  brm(data = long,
-      family = gaussian,
-      formula = response~real*condition*pk+
-        (1 +condition   | item) +
-        (1 + real | rid),
-      prior = c(prior(normal(0.5, 0.25), class = Intercept), #start with vague and uninformative prior - 0.5. 
-                prior(normal(0, 0.25),    class = b),#b is all the slopes. we expect >0 (maybe 0.05, change variation) #class = b, coef="veracity" #remove priors on 25+27 (21+22)
-                prior(exponential(14),   class = sd), #sd governs the SD of the fixed effects of the random cluster. can only be positive so exponential
-                prior(exponential(1),    class = sigma),  #noise param, whats left over. fine as exp(1). if zed(continuous) then easy to set as exp(1)
-                prior(lkj(2),            class = cor)), #prior on covariance structure. intercept and slope within cluster
-      iter = 4000, warmup = 1000, chains = 4, cores = 4, seed = 42, #warmup=1000 is good. iter=3000 is chill too.  #1 chain per core 
-      control = list(adapt_delta = 0.92), #not default, default = 0.8, if step size is too large,adjust 
-      file = "../models/pk_mod")
+# 
+# pk_mod <- 
+#   brm(data = long,
+#       family = gaussian,
+#       formula = response~real*condition*pk+
+#         (1 +condition   | item) +
+#         (1 + real | rid),
+#       prior = c(prior(normal(0.5, 0.25), class = Intercept), #start with vague and uninformative prior - 0.5. 
+#                 prior(normal(0, 0.25),    class = b),#b is all the slopes. we expect >0 (maybe 0.05, change variation) #class = b, coef="veracity" #remove priors on 25+27 (21+22)
+#                 prior(exponential(14),   class = sd), #sd governs the SD of the fixed effects of the random cluster. can only be positive so exponential
+#                 prior(exponential(1),    class = sigma),  #noise param, whats left over. fine as exp(1). if zed(continuous) then easy to set as exp(1)
+#                 prior(lkj(2),            class = cor)), #prior on covariance structure. intercept and slope within cluster
+#       iter = 4000, warmup = 1000, chains = 4, cores = 4, seed = 42, #warmup=1000 is good. iter=3000 is chill too.  #1 chain per core 
+#       control = list(adapt_delta = 0.92), #not default, default = 0.8, if step size is too large,adjust 
+#       file = "../models/pk_mod")
 
 #Predicting attentional capture as an outcome
-m5 <- 
-  brm(data = yourfeed,
-      family = gaussian,
-      formula = attend1~real*concordant+
-        (1 +concordant  | item) +
-        (1 + real + concordant | rid),
-      prior = c(prior(normal(0.5, 0.25), class = Intercept), #start with vague and uninformative prior - 0.5. 
-                prior(normal(0, 0.25),    class = b),#b is all the slopes. we expect >0 (maybe 0.05, change variation) #class = b, coef="veracity" #remove priors on 25+27 (21+22)
-                prior(exponential(14),   class = sd), #sd governs the SD of the fixed effects of the random cluster. can only be positive so exponential
-                prior(exponential(1),    class = sigma),  #noise param, whats left over. fine as exp(1). if zed(continuous) then easy to set as exp(1)
-                prior(lkj(2),            class = cor)), #prior on covariance structure. intercept and slope within cluster
-      iter = 4000, warmup = 1000, chains = 4, cores = 4, seed = 42, #warmup=1000 is good. iter=3000 is chill too.  #1 chain per core 
-      control = list(adapt_delta = 0.92), #not default, default = 0.8, if step size is too large,adjust 
-      file = "../models/m5")
-
-m6 <- 
-  brm(data = yourfeed,
-      family = gaussian,
-      formula = attend1~real*concordant*crt+
-        (1 +concordant +crt  | item) +
-        (1 + real + concordant | rid),
-      prior = c(prior(normal(0.5, 0.25), class = Intercept), #start with vague and uninformative prior - 0.5. 
-                prior(normal(0, 0.25),    class = b),#b is all the slopes. we expect >0 (maybe 0.05, change variation) #class = b, coef="veracity" #remove priors on 25+27 (21+22)
-                prior(exponential(14),   class = sd), #sd governs the SD of the fixed effects of the random cluster. can only be positive so exponential
-                prior(exponential(1),    class = sigma),  #noise param, whats left over. fine as exp(1). if zed(continuous) then easy to set as exp(1)
-                prior(lkj(2),            class = cor)), #prior on covariance structure. intercept and slope within cluster
-      iter = 4000, warmup = 1000, chains = 4, cores = 4, seed = 42, #warmup=1000 is good. iter=3000 is chill too.  #1 chain per core 
-      control = list(adapt_delta = 0.92), #not default, default = 0.8, if step size is too large,adjust 
-      file = "../models/m6")
-
-m7 <- 
-  brm(data = yourfeed,
-      family = gaussian,
-      formula = attend1~real*concordant*pk+
-        (1 +concordant +pk  | item) +
-        (1 + real + concordant | rid),
-      prior = c(prior(normal(0.5, 0.25), class = Intercept), #start with vague and uninformative prior - 0.5. 
-                prior(normal(0, 0.25),    class = b),#b is all the slopes. we expect >0 (maybe 0.05, change variation) #class = b, coef="veracity" #remove priors on 25+27 (21+22)
-                prior(exponential(14),   class = sd), #sd governs the SD of the fixed effects of the random cluster. can only be positive so exponential
-                prior(exponential(1),    class = sigma),  #noise param, whats left over. fine as exp(1). if zed(continuous) then easy to set as exp(1)
-                prior(lkj(2),            class = cor)), #prior on covariance structure. intercept and slope within cluster
-      iter = 4000, warmup = 1000, chains = 4, cores = 4, seed = 42, #warmup=1000 is good. iter=3000 is chill too.  #1 chain per core 
-      control = list(adapt_delta = 0.92), #not default, default = 0.8, if step size is too large,adjust 
-      file = "../models/m7")
-
-m8 <- 
-  brm(data = yourfeed,
-      family = gaussian,
-      formula = attend2~real*concordant+
-        (1 +concordant  | item) +
-        (1 + real + concordant | rid),
-      prior = c(prior(normal(0.5, 0.25), class = Intercept), #start with vague and uninformative prior - 0.5. 
-                prior(normal(0, 0.25),    class = b),#b is all the slopes. we expect >0 (maybe 0.05, change variation) #class = b, coef="veracity" #remove priors on 25+27 (21+22)
-                prior(exponential(14),   class = sd), #sd governs the SD of the fixed effects of the random cluster. can only be positive so exponential
-                prior(exponential(1),    class = sigma),  #noise param, whats left over. fine as exp(1). if zed(continuous) then easy to set as exp(1)
-                prior(lkj(2),            class = cor)), #prior on covariance structure. intercept and slope within cluster
-      iter = 4000, warmup = 1000, chains = 4, cores = 4, seed = 42, #warmup=1000 is good. iter=3000 is chill too.  #1 chain per core 
-      control = list(adapt_delta = 0.92), #not default, default = 0.8, if step size is too large,adjust 
-      file = "../models/m8")
-
-m9 <- 
-  brm(data = yourfeed,
-      family = gaussian,
-      formula = attend2~real*concordant*crt+
-        (1 +concordant +crt  | item) +
-        (1 + real + concordant | rid),
-      prior = c(prior(normal(0.5, 0.25), class = Intercept), #start with vague and uninformative prior - 0.5. 
-                prior(normal(0, 0.25),    class = b),#b is all the slopes. we expect >0 (maybe 0.05, change variation) #class = b, coef="veracity" #remove priors on 25+27 (21+22)
-                prior(exponential(14),   class = sd), #sd governs the SD of the fixed effects of the random cluster. can only be positive so exponential
-                prior(exponential(1),    class = sigma),  #noise param, whats left over. fine as exp(1). if zed(continuous) then easy to set as exp(1)
-                prior(lkj(2),            class = cor)), #prior on covariance structure. intercept and slope within cluster
-      iter = 4000, warmup = 1000, chains = 4, cores = 4, seed = 42, #warmup=1000 is good. iter=3000 is chill too.  #1 chain per core 
-      control = list(adapt_delta = 0.92), #not default, default = 0.8, if step size is too large,adjust 
-      file = "../models/m9")
-
-m10 <- 
-  brm(data = yourfeed,
-      family = gaussian,
-      formula = attend2~real*concordant*pk+
-        (1 +concordant +pk  | item) +
-        (1 + real + concordant | rid),
-      prior = c(prior(normal(0.5, 0.25), class = Intercept), #start with vague and uninformative prior - 0.5. 
-                prior(normal(0, 0.25),    class = b),#b is all the slopes. we expect >0 (maybe 0.05, change variation) #class = b, coef="veracity" #remove priors on 25+27 (21+22)
-                prior(exponential(14),   class = sd), #sd governs the SD of the fixed effects of the random cluster. can only be positive so exponential
-                prior(exponential(1),    class = sigma),  #noise param, whats left over. fine as exp(1). if zed(continuous) then easy to set as exp(1)
-                prior(lkj(2),            class = cor)), #prior on covariance structure. intercept and slope within cluster
-      iter = 4000, warmup = 1000, chains = 4, cores = 4, seed = 42, #warmup=1000 is good. iter=3000 is chill too.  #1 chain per core 
-      control = list(adapt_delta = 0.92), #not default, default = 0.8, if step size is too large,adjust 
-      file = "../models/m10")
+# m5 <- 
+#   brm(data = yourfeed,
+#       family = gaussian,
+#       formula = attend1~real*concordant+
+#         (1 +concordant  | item) +
+#         (1 + real + concordant | rid),
+#       prior = c(prior(normal(0.5, 0.25), class = Intercept), #start with vague and uninformative prior - 0.5. 
+#                 prior(normal(0, 0.25),    class = b),#b is all the slopes. we expect >0 (maybe 0.05, change variation) #class = b, coef="veracity" #remove priors on 25+27 (21+22)
+#                 prior(exponential(14),   class = sd), #sd governs the SD of the fixed effects of the random cluster. can only be positive so exponential
+#                 prior(exponential(1),    class = sigma),  #noise param, whats left over. fine as exp(1). if zed(continuous) then easy to set as exp(1)
+#                 prior(lkj(2),            class = cor)), #prior on covariance structure. intercept and slope within cluster
+#       iter = 4000, warmup = 1000, chains = 4, cores = 4, seed = 42, #warmup=1000 is good. iter=3000 is chill too.  #1 chain per core 
+#       control = list(adapt_delta = 0.92), #not default, default = 0.8, if step size is too large,adjust 
+#       file = "../models/m5")
+# 
+# m6 <- 
+#   brm(data = yourfeed,
+#       family = gaussian,
+#       formula = attend1~real*concordant*crt+
+#         (1 +concordant +crt  | item) +
+#         (1 + real + concordant | rid),
+#       prior = c(prior(normal(0.5, 0.25), class = Intercept), #start with vague and uninformative prior - 0.5. 
+#                 prior(normal(0, 0.25),    class = b),#b is all the slopes. we expect >0 (maybe 0.05, change variation) #class = b, coef="veracity" #remove priors on 25+27 (21+22)
+#                 prior(exponential(14),   class = sd), #sd governs the SD of the fixed effects of the random cluster. can only be positive so exponential
+#                 prior(exponential(1),    class = sigma),  #noise param, whats left over. fine as exp(1). if zed(continuous) then easy to set as exp(1)
+#                 prior(lkj(2),            class = cor)), #prior on covariance structure. intercept and slope within cluster
+#       iter = 4000, warmup = 1000, chains = 4, cores = 4, seed = 42, #warmup=1000 is good. iter=3000 is chill too.  #1 chain per core 
+#       control = list(adapt_delta = 0.92), #not default, default = 0.8, if step size is too large,adjust 
+#       file = "../models/m6")
+# 
+# m7 <- 
+#   brm(data = yourfeed,
+#       family = gaussian,
+#       formula = attend1~real*concordant*pk+
+#         (1 +concordant +pk  | item) +
+#         (1 + real + concordant | rid),
+#       prior = c(prior(normal(0.5, 0.25), class = Intercept), #start with vague and uninformative prior - 0.5. 
+#                 prior(normal(0, 0.25),    class = b),#b is all the slopes. we expect >0 (maybe 0.05, change variation) #class = b, coef="veracity" #remove priors on 25+27 (21+22)
+#                 prior(exponential(14),   class = sd), #sd governs the SD of the fixed effects of the random cluster. can only be positive so exponential
+#                 prior(exponential(1),    class = sigma),  #noise param, whats left over. fine as exp(1). if zed(continuous) then easy to set as exp(1)
+#                 prior(lkj(2),            class = cor)), #prior on covariance structure. intercept and slope within cluster
+#       iter = 4000, warmup = 1000, chains = 4, cores = 4, seed = 42, #warmup=1000 is good. iter=3000 is chill too.  #1 chain per core 
+#       control = list(adapt_delta = 0.92), #not default, default = 0.8, if step size is too large,adjust 
+#       file = "../models/m7")
+# 
+# m8 <- 
+#   brm(data = yourfeed,
+#       family = gaussian,
+#       formula = attend2~real*concordant+
+#         (1 +concordant  | item) +
+#         (1 + real + concordant | rid),
+#       prior = c(prior(normal(0.5, 0.25), class = Intercept), #start with vague and uninformative prior - 0.5. 
+#                 prior(normal(0, 0.25),    class = b),#b is all the slopes. we expect >0 (maybe 0.05, change variation) #class = b, coef="veracity" #remove priors on 25+27 (21+22)
+#                 prior(exponential(14),   class = sd), #sd governs the SD of the fixed effects of the random cluster. can only be positive so exponential
+#                 prior(exponential(1),    class = sigma),  #noise param, whats left over. fine as exp(1). if zed(continuous) then easy to set as exp(1)
+#                 prior(lkj(2),            class = cor)), #prior on covariance structure. intercept and slope within cluster
+#       iter = 4000, warmup = 1000, chains = 4, cores = 4, seed = 42, #warmup=1000 is good. iter=3000 is chill too.  #1 chain per core 
+#       control = list(adapt_delta = 0.92), #not default, default = 0.8, if step size is too large,adjust 
+#       file = "../models/m8")
+# 
+# m9 <- 
+#   brm(data = yourfeed,
+#       family = gaussian,
+#       formula = attend2~real*concordant*crt+
+#         (1 +concordant +crt  | item) +
+#         (1 + real + concordant | rid),
+#       prior = c(prior(normal(0.5, 0.25), class = Intercept), #start with vague and uninformative prior - 0.5. 
+#                 prior(normal(0, 0.25),    class = b),#b is all the slopes. we expect >0 (maybe 0.05, change variation) #class = b, coef="veracity" #remove priors on 25+27 (21+22)
+#                 prior(exponential(14),   class = sd), #sd governs the SD of the fixed effects of the random cluster. can only be positive so exponential
+#                 prior(exponential(1),    class = sigma),  #noise param, whats left over. fine as exp(1). if zed(continuous) then easy to set as exp(1)
+#                 prior(lkj(2),            class = cor)), #prior on covariance structure. intercept and slope within cluster
+#       iter = 4000, warmup = 1000, chains = 4, cores = 4, seed = 42, #warmup=1000 is good. iter=3000 is chill too.  #1 chain per core 
+#       control = list(adapt_delta = 0.92), #not default, default = 0.8, if step size is too large,adjust 
+#       file = "../models/m9")
+# 
+# m10 <- 
+#   brm(data = yourfeed,
+#       family = gaussian,
+#       formula = attend2~real*concordant*pk+
+#         (1 +concordant +pk  | item) +
+#         (1 + real + concordant | rid),
+#       prior = c(prior(normal(0.5, 0.25), class = Intercept), #start with vague and uninformative prior - 0.5. 
+#                 prior(normal(0, 0.25),    class = b),#b is all the slopes. we expect >0 (maybe 0.05, change variation) #class = b, coef="veracity" #remove priors on 25+27 (21+22)
+#                 prior(exponential(14),   class = sd), #sd governs the SD of the fixed effects of the random cluster. can only be positive so exponential
+#                 prior(exponential(1),    class = sigma),  #noise param, whats left over. fine as exp(1). if zed(continuous) then easy to set as exp(1)
+#                 prior(lkj(2),            class = cor)), #prior on covariance structure. intercept and slope within cluster
+#       iter = 4000, warmup = 1000, chains = 4, cores = 4, seed = 42, #warmup=1000 is good. iter=3000 is chill too.  #1 chain per core 
+#       control = list(adapt_delta = 0.92), #not default, default = 0.8, if step size is too large,adjust 
+#       file = "../models/m10")
 
 m11 <- 
-  brm(data = yourfeed,
+  brm(data = yofo,
       family = gaussian,
       formula = attend3~real*concordant+
         (1 +concordant  | item) +
@@ -214,7 +214,7 @@ m11 <-
       file = "../models/m11")
 
 m12 <- 
-  brm(data = yourfeed,
+  brm(data = yofo,
       family = gaussian,
       formula = attend3~real*concordant*crt+
         (1 +concordant +crt  | item) +
@@ -229,7 +229,7 @@ m12 <-
       file = "../models/m12")
 
 m13 <- 
-  brm(data = yourfeed,
+  brm(data = yofo,
       family = gaussian,
       formula = attend3~real*concordant*pk+
         (1 +concordant +pk  | item) +
