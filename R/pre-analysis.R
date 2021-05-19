@@ -159,3 +159,15 @@ hist(log(noncompliers$time),add=T,freq=F, col=adjustcolor("red", alpha.f = 0.2))
 abline(v=mean(log(noncompliers$time), na.rm=T), col='red', lwd=2)
 abline(v=mean(log(compliers$time), na.rm=T), col='blue', lwd=2)
 
+
+order <- long %>% filter(condition==1)%>% mutate (
+  wdwell = case_when(
+    dwell > quantile(dwell, 0.95) ~ quantile(dwell, 0.95),
+    T ~ dwell
+  )
+) %>% group_by(order) %>% dplyr::summarize(y = mean(wdwell), ci = mean_error(wdwell))
+p <- plot(order$order, order$y, xlim=c(0,140),ylim=c(0,7000), pch=21, bg='yellow', xlab = "Item order", ylab="Dwell")
+arrows(x0=order$order,y0=order$y-order$ci, y1=order$y+order$ci, angle=90, code=3, length=0.05)
+points(order$order, order$y, bg='yellow', pch=21)
+arrows(x0=order[order$condition==1,]$order,y0=order[order$condition==1,]$y-order[order$condition==1,]$ci, y1=order[order$condition==1,]$y+order[order$condition==1,]$ci, angle=90, code=3, length=0.05)
+points(order[order$condition==1,]$order, order[order$condition==1,]$y, bg='green', pch=21)
