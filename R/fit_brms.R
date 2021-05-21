@@ -1,6 +1,12 @@
 library(tidyverse)
 library(brms)
 
+prior = c(prior(normal(0.5, .25), class = Intercept), #start with vague and uninformative prior - 0.5. 
+          prior(normal(0, 0.25),    class = b),#b is all the slopes. we expect >0 (maybe 0.05, change variation) #class = b, coef="veracity" #remove priors on 25+27 (21+22)
+          prior(exponential(14),   class = sd), #sd governs the SD of the fixed effects of the random cluster. can only be positive so exponential
+          prior(exponential(1),    class = sigma),  #noise param, whats left over. fine as exp(1). if zed(continuous) then easy to set as exp(1)
+          prior(lkj(2),            class = cor))
+
 long_raw <- read_csv("https://www.dropbox.com/s/xd0i4dse47nggmt/soft_long.csv?dl=1")
 item_level <- read_csv("https://www.dropbox.com/s/890rqvsdarl4ib7/item_level.csv?dl=1")
 
