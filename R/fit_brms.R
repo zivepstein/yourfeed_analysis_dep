@@ -48,22 +48,22 @@ yourfeed <- long %>% filter(condition==1) %>% mutate(
 
 A1 <- brm(data = yourfeed,family = gaussian,
           formula = attend~crt*(real+concordant+discordant+surprising+likely_true+ favors_party+ benefits_party +important+ funny+ surprising +reputation_overall +reputation_partyloyalty+ reputation_engage+ likely_share + order*prekink)+
-            (1 + real+concordant+discordant+surprising+likely_true+ favors_party+ benefits_party +important+ funny+ surprising +reputation_overall +reputation_partyloyalty+ reputation_engage+ likely_share + crt+order*prekink| item) +
-            (1 + real+concordant+discordant+surprising+likely_true+ favors_party+ benefits_party +important+ funny+ surprising +reputation_overall +reputation_partyloyalty+ reputation_engage+ likely_share + crt + order*prekink| rid),
+            (1 + real+concordant+discordant + crt+order*prekink| item) +
+            (1 + real+concordant+discordant+surprising+likely_true+ favors_party+ benefits_party +important+ funny+ surprising +reputation_overall +reputation_partyloyalty+ reputation_engage+ likely_share + order*prekink| rid),
           prior = prior, iter = 5000, warmup = 1000, chains = 4, cores = 4, seed = 42, control = list(adapt_delta = 0.92), 
           file = "../models/A1")
 
 A2 <- brm(data = yourfeed,family = gaussian,
           formula = wdwell~crt*(real+concordant+discordant+surprising+likely_true+ favors_party+ benefits_party +important+ funny+ surprising +reputation_overall +reputation_partyloyalty+ reputation_engage+ likely_share + order*prekink)+
-            (1 + real+concordant+discordant+surprising+likely_true+ favors_party+ benefits_party +important+ funny+ surprising +reputation_overall +reputation_partyloyalty+ reputation_engage+ likely_share + crt+order*prekink| item) +
-            (1 + real+concordant+discordant+surprising+likely_true+ favors_party+ benefits_party +important+ funny+ surprising +reputation_overall +reputation_partyloyalty+ reputation_engage+ likely_share + crt + order*prekink| rid),
+            (1 + real+concordant+discordant + crt+order*prekink| item) +
+            (1 + real+concordant+discordant+surprising+likely_true+ favors_party+ benefits_party +important+ funny+ surprising +reputation_overall +reputation_partyloyalty+ reputation_engage+ likely_share + order*prekink| rid),
           prior = prior, iter = 5000, warmup = 1000, chains = 4, cores = 4, seed = 42, control = list(adapt_delta = 0.92), 
           file = "../models/A2")
 
 A3 <- brm(data = yourfeed,family = gaussian,
           formula = ldwell~crt*(real+concordant+discordant+surprising+likely_true+ favors_party+ benefits_party +important+ funny+ surprising +reputation_overall +reputation_partyloyalty+ reputation_engage+ likely_share + order*prekink)+
-            (1 + real+concordant+discordant+surprising+likely_true+ favors_party+ benefits_party +important+ funny+ surprising +reputation_overall +reputation_partyloyalty+ reputation_engage+ likely_share + crt+order*prekink| item) +
-            (1 + real+concordant+discordant+surprising+likely_true+ favors_party+ benefits_party +important+ funny+ surprising +reputation_overall +reputation_partyloyalty+ reputation_engage+ likely_share + crt + order*prekink| rid),
+            (1 + real+concordant+discordant + crt+order*prekink| item) +
+            (1 + real+concordant+discordant+surprising+likely_true+ favors_party+ benefits_party +important+ funny+ surprising +reputation_overall +reputation_partyloyalty+ reputation_engage+ likely_share + order*prekink| rid),
           prior = prior, iter = 5000, warmup = 1000, chains = 4, cores = 4, seed = 42, control = list(adapt_delta = 0.92), 
           file = "../models/A3")
 # main <- 
