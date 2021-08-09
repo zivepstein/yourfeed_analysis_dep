@@ -10,15 +10,15 @@ pretest <- read_csv("https://www.dropbox.com/s/lmnyerfkrzcgcxt/20210129pretest.c
 long_raw <- read_csv("https://www.dropbox.com/s/xd0i4dse47nggmt/soft_long.csv?dl=1")
 # item_level <-read_csv("/Users/ziv.e/github/yourfeed_analysis/data/yourfeed_item_level.csv")
 item_level <-read_csv("https://www.dropbox.com/s/4pwk7gvgulbgo7o/yourfeed_item_level.csv?dl=1")
-item_level$nchar <- nchar(item_level$text)
-res.pca <- prcomp(item_level[,121:2424])
-item_level$deepmoji1 <-res.pca$x[,1]
-item_level$deepmoji2 <-res.pca$x[,2]
-item_level$deepmoji3 <-res.pca$x[,3]
-
 torchmoji <- read_csv("https://www.dropbox.com/s/mfeocp3rhvy78qm/yourfeed_torchmoji.csv?dl=1", col_names=F)
 # torchmoji <- read_csv("/Users/ziv.e/github/torchmoji/data/yourfeed_torchmoji.csv", col_names=F)
 item_level <- cbind(item_level, torchmoji)
+
+item_level$nchar <- nchar(item_level$text)
+res.pca <- prcomp(item_level[,122:2425])
+item_level$deepmoji1 <-res.pca$x[,1]
+item_level$deepmoji2 <-res.pca$x[,2]
+item_level$deepmoji3 <-res.pca$x[,3]
 
 pretest = as.data.frame(pretest)
 cov <- c("likely_true", "favors_r", "benefits_r", "important", "funny", "surprising", "reputation_overall", 'reputation_partyloyalty', 'reputation_engage' ,'likely_share')
