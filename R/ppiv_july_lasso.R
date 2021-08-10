@@ -153,7 +153,9 @@ generate_formula <- function(outcome, user_factors = "", item_factors = "", envi
   if( environment_factors == 'features'){
     e_f <- paste(enviornment_vars , collapse=" + ")
   } 
-  f <- paste(u_f, i_f, e_f, sep = "+")
+  
+  
+  f <- paste(paste("(", u_f, ")", sep=""), paste("(", i_f, ")", sep=""), paste("(", e_f, ")", sep=""), sep = "*")
   formula = paste( "~", f, sep=" ")
   return(formula)
 }
@@ -211,8 +213,9 @@ out[4,6] <- do_glmnet("response",  environment_factors = "features", item_factor
 out[4,7] <- do_glmnet("response",  user_factors = "features",environment_factors = "features", item_factors = "dummies", name = "subject_features_headline_dummies_environment_features")
 
 write.csv(out, "models/lasso_results.csv")
-# # par(mfrow=c(2,2))
-# # barplot(out[1,],main ="Attention: subject dummies + headline features", ylab = "cor", names.arg=c("Subject","Items","Environment","Subject\nItems","Subject\nEnvironment","Items\nEnviornment","Subject+Items\nEnvironment"),col = c('#EECDCD','#FDF2D0','#D3E1F1', '#F8E6D0','#D8D2E7', '#DCE9D5', '#D9D9D9'))
-# # barplot(out[2,],main ="Attention: subject features + headline dummies", ylab = "cor", names.arg=c("Subject","Items","Environment","Subject\nItems","Subject\nEnvironment","Items\nEnviornment","Subject+Items\nEnvironment"),col = c('#EECDCD','#FDF2D0','#D3E1F1', '#F8E6D0','#D8D2E7', '#DCE9D5', '#D9D9D9'))
-# # barplot(out[3,],main ="Sharing: subject dummies + headline features", ylab = "AUC", names.arg=c("Subject","Items","Environment","Subject\nItems","Subject\nEnvironment","Items\nEnviornment","Subject+Items\nEnvironment"),col = c('#EECDCD','#FDF2D0','#D3E1F1', '#F8E6D0','#D8D2E7', '#DCE9D5', '#D9D9D9'))
-# # barplot(out[4,],main ="Sharing: subject features + headline dummies",ylab = "AUC", names.arg=c("Subject","Items","Environment","Subject\nItems","Subject\nEnvironment","Items\nEnviornment","Subject+Items\nEnvironment"),col = c('#EECDCD','#FDF2D0','#D3E1F1', '#F8E6D0','#D8D2E7', '#DCE9D5', '#D9D9D9'))
+# out <- as.matrix(read.csv("~/github/yourfeed_analysis/models/lasso_results.csv"))[,-1]
+# par(mfrow=c(2,1))
+# barplot(out[1,],main ="Attention: subject dummies + headline features", ylab = "cor", names.arg=c("Subject","Items","Environment","Subject\nItems","Subject\nEnvironment","Items\nEnviornment","Subject+Items\nEnvironment"),col = c('#EECDCD','#FDF2D0','#D3E1F1', '#F8E6D0','#D8D2E7', '#DCE9D5', '#D9D9D9'))
+# barplot(out[2,],main ="Attention: subject features + headline dummies", ylab = "cor", names.arg=c("Subject","Items","Environment","Subject\nItems","Subject\nEnvironment","Items\nEnviornment","Subject+Items\nEnvironment"),col = c('#EECDCD','#FDF2D0','#D3E1F1', '#F8E6D0','#D8D2E7', '#DCE9D5', '#D9D9D9'))
+# barplot(out[3,]-0.5,offset=0.5, main ="Sharing: subject dummies + headline features", ylab = "AUC", names.arg=c("Subject","Items","Environment","Subject\nItems","Subject\nEnvironment","Items\nEnviornment","Subject+Items\nEnvironment"),col = c('#EECDCD','#FDF2D0','#D3E1F1', '#F8E6D0','#D8D2E7', '#DCE9D5', '#D9D9D9'))
+# barplot(out[4,]-0.5, offset=0.5, main ="Sharing: subject features + headline dummies",ylab = "AUC", names.arg=c("Subject","Items","Environment","Subject\nItems","Subject\nEnvironment","Items\nEnviornment","Subject+Items\nEnvironment"),col = c('#EECDCD','#FDF2D0','#D3E1F1', '#F8E6D0','#D8D2E7', '#DCE9D5', '#D9D9D9'))
