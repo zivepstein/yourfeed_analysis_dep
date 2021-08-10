@@ -156,6 +156,7 @@ generate_formula <- function(outcome, user_factors = "", item_factors = "", envi
   
   
   f <- paste(paste("(", u_f, ")", sep=""), paste("(", i_f, ")", sep=""), paste("(", e_f, ")", sep=""), sep = "*")
+  f <- str_replace(str_replace(f, "\\*\\(1\\)", ""), "\\(1\\)\\*", "")
   formula = paste( "~", f, sep=" ")
   return(formula)
 }
@@ -212,7 +213,7 @@ out[4,5] <- do_glmnet("response", user_factors = "features",environment_factors 
 out[4,6] <- do_glmnet("response",  environment_factors = "features", item_factors = "dummies", name = "environment_features_headline_dummies")
 out[4,7] <- do_glmnet("response",  user_factors = "features",environment_factors = "features", item_factors = "dummies", name = "subject_features_headline_dummies_environment_features")
 
-write.csv(out, "models/lasso_results.csv")
+write.csv(out, "models/lasso_results_interaction.csv")
 # out <- as.matrix(read.csv("~/github/yourfeed_analysis/models/lasso_results.csv"))[,-1]
 # par(mfrow=c(2,1))
 # barplot(out[1,],main ="Attention: subject dummies + headline features", ylab = "cor", names.arg=c("Subject","Items","Environment","Subject\nItems","Subject\nEnvironment","Items\nEnviornment","Subject+Items\nEnvironment"),col = c('#EECDCD','#FDF2D0','#D3E1F1', '#F8E6D0','#D8D2E7', '#DCE9D5', '#D9D9D9'))
