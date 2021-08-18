@@ -175,6 +175,7 @@ do_glmnet <- function(outcome, user_factors = "", item_factors = "", environment
     model = cv.glmnet(as.matrix(X_train),as.matrix(Y_train), family = 'binomial')
   }
   out <- eval_glmnet(model, outcome, X_test, Y_test, name = name)
+  saveRDS(model, paste("models/lasso_models/", name, ".RData", sep=""))
   print(paste(out, name, sep = ":"))
   return(out)
 }
@@ -212,9 +213,9 @@ out[4,4] <- do_glmnet("response",  user_factors = "features", item_factors = "du
 out[4,5] <- do_glmnet("response", user_factors = "features",environment_factors = "features", name = "subject_features_environment_features")
 out[4,6] <- do_glmnet("response",  environment_factors = "features", item_factors = "dummies", name = "environment_features_headline_dummies")
 out[4,7] <- do_glmnet("response",  user_factors = "features",environment_factors = "features", item_factors = "dummies", name = "subject_features_headline_dummies_environment_features")
-
-write.csv(out, "models/lasso_results_interaction.csv")
-# out <- as.matrix(read.csv("~/github/yourfeed_analysis/models/lasso_results.csv"))[,-1]
+# 
+# write.csv(out, "models/lasso_results_interaction.csv")
+# out <- as.matrix(read.csv("~/github/yourfeed_analysis/models/lasso_results_interaction.csv"))[,-1]
 # par(mfrow=c(2,1))
 # barplot(out[1,],main ="Attention: subject dummies + headline features", ylab = "cor", names.arg=c("Subject","Items","Environment","Subject\nItems","Subject\nEnvironment","Items\nEnviornment","Subject+Items\nEnvironment"),col = c('#EECDCD','#FDF2D0','#D3E1F1', '#F8E6D0','#D8D2E7', '#DCE9D5', '#D9D9D9'))
 # barplot(out[2,],main ="Attention: subject features + headline dummies", ylab = "cor", names.arg=c("Subject","Items","Environment","Subject\nItems","Subject\nEnvironment","Items\nEnviornment","Subject+Items\nEnvironment"),col = c('#EECDCD','#FDF2D0','#D3E1F1', '#F8E6D0','#D8D2E7', '#DCE9D5', '#D9D9D9'))
