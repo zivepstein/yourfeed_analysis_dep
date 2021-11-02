@@ -45,7 +45,7 @@ for (i in 1:n_boot){
   
   if (i%%10 ==0){
     print(i)
-    write.csv(imp_dwell, "../data/generated/imp_engage.csv")
+    write.csv(imp_dwell, "../data/generated/imp_dwell.csv")
     write.csv(imp_engage, "../data/generated/imp_engage.csv")
     write.csv(out_engage, "../data/generated/engage_ppiv.csv")
     write.csv(out_dwell, "../data/generated/dwell_ppiv.csv")
