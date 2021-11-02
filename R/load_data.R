@@ -2,6 +2,7 @@ library(lme4)
 library(lmerTest)
 library(tidyverse)
 library("readxl")
+setwd("/home/groh/github/yourfeed_analysis/R")
 options("scipen"=100, "digits"=4)
 
 
