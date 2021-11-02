@@ -1,10 +1,10 @@
 import zipfile, io
 import requests
-from creds import qualtrics_token
+# from creds import qualtrics_token
 import pandas.io.sql as sqlio
 import numpy as np
 import pandas as pd
-import scipy
+# import scipy
 
 
 def fx(d):

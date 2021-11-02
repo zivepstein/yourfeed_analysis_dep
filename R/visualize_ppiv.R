@@ -1,0 +1,7 @@
+par(mfrow=c(2,1))
+barplot(out[2,]-0.5, offset =0.5, main ="Sharing: subject + headline features", ylab = "AUC", names.arg=c("Subject","Items","Environment","Subject\nItems","Subject\nEnvironment","Items\nEnviornment","Subject+Items\nEnvironment"),col = c('#EECDCD','#FDF2D0','#D3E1F1', '#F8E6D0','#D8D2E7', '#DCE9D5', '#D9D9D9'))
+barplot(out[1,],main ="Attention: subject + headline features", ylab = "cor", names.arg=c("Subject","Items","Environment","Subject\nItems","Subject\nEnvironment","Items\nEnviornment","Subject+Items\nEnvironment"),col = c('#EECDCD','#FDF2D0','#D3E1F1', '#F8E6D0','#D8D2E7', '#DCE9D5', '#D9D9D9'))
+par(mfrow=c(1,2))
+varImpPlot2(full_dwell)
+varImpPlot2(full_share)
+varImpPlot(full_share2)

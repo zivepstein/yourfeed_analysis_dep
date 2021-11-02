@@ -8,14 +8,15 @@ pretest <- read_excel("/Users/ziv.e/github/yourfeed_analysis/data/20210129 prete
 long_raw <- read_csv("https://www.dropbox.com/s/xd0i4dse47nggmt/soft_long.csv?dl=1")
 #item_level <- read_csv("https://www.dropbox.com/s/asrmhf3upvhy1fq/aj_headlines.csv?dl=1")
 item_level <-read_csv("/Users/ziv.e/github/yourfeed_analysis/data/yourfeed_item_level.csv")
+
+
+torchmoji <- read_csv("/Users/ziv.e/github/torchmoji/data/yourfeed_torchmoji.csv", col_names=F)
+item_level <- cbind(item_level, torchmoji)
 item_level$nchar <- nchar(item_level$text)
 res.pca <- prcomp(item_level[,121:2424])
 item_level$deepmoji1 <-res.pca$x[,1]
 item_level$deepmoji2 <-res.pca$x[,2]
 item_level$deepmoji3 <-res.pca$x[,3]
-
-torchmoji <- read_csv("/Users/ziv.e/github/torchmoji/data/out.csv", col_names=F)
-item_level <- cbind(item_level, torchmoji)
 
 pretest = as.data.frame(pretest)
 cov <- c("likely_true", "favors_r", "benefits_r", "important", "funny", "surprising", "reputation_overall", 'reputation_partyloyalty', 'reputation_engage' ,'likely_share')
@@ -109,20 +110,18 @@ library(randomForest)
 library(ROCR)
 
 eval_rf <- function(rf_classifier, outcome, name){
-  if (outcome == 'ldwell'){
-    p <- predict(rf_classifier, yourfit%>% filter(!is_train))
-    out <- cor(p,yourfit[!yourfit$is_train,outcome])
-    print(out)
-  } else if (outcome == 'response'){
+  if (outcome == 'response'){
     p <- predict(rf_classifier, yourfit%>% filter(!is_train), type="prob")
     pred <- prediction(predictions = p[,2], labels=yourfit[!yourfit$is_train,outcome])
     auc.tmp <- performance(pred,"auc"); auc <- as.numeric(auc.tmp@y.values)
     out <- auc
     print(out)
   } else{
-    print("outcome not supported")
+    p <- predict(rf_classifier, yourfit%>% filter(!is_train))
+    out <- cor(p,yourfit[!yourfit$is_train,outcome])
+    print(out)
   }
-  save(rf_classifier, file=paste("models/", name , ".RData", sep=""))
+  # save(rf_classifier, file=paste("models/", name , ".RData", sep=""))
   return(out)
 }
 #test train split - within person within item
@@ -155,9 +154,12 @@ generate_formula <- function(outcome, user_factors = "", item_factors = "", envi
   return(formula)
 }
 
-do_rf <- function(outcome, user_factors = "", item_factors = "", environment_factors = "", name ="", mtry=2){
+do_rf <- function(outcome, user_factors = "", item_factors = "", environment_factors = "", name ="", mtry=2, return_model = FALSE){
   f <- as.formula(generate_formula(outcome, user_factors =user_factors, item_factors =item_factors,environment_factors=environment_factors ))
   rf_classifier = randomForest(f,data=yourfit %>% filter(is_train), ntree=50, mtry=mtry, importance=TRUE)
+  if (return_model){
+    return(rf_classifier)
+  }
   eval_rf(rf_classifier, outcome, name = name)
 }
   
@@ -195,8 +197,23 @@ out[4,5] <- do_rf("response", user_factors = "features",environment_factors = "f
 out[4,6] <- do_rf("response",  environment_factors = "features", item_factors = "dummies", name = "environment_features_headline_dummies")
 out[4,7] <- do_rf("response",  user_factors = "features",environment_factors = "features", item_factors = "dummies", name = "subject_features_headline_dummies_environment_features")
 
-par(mfrow=c(2,2))
+par(mfrow=c(2,1))
 barplot(out[1,],main ="Attention: subject dummies + headline features", ylab = "cor", names.arg=c("Subject","Items","Environment","Subject\nItems","Subject\nEnvironment","Items\nEnviornment","Subject+Items\nEnvironment"),col = c('#EECDCD','#FDF2D0','#D3E1F1', '#F8E6D0','#D8D2E7', '#DCE9D5', '#D9D9D9'))
 barplot(out[2,],main ="Attention: subject features + headline dummies", ylab = "cor", names.arg=c("Subject","Items","Environment","Subject\nItems","Subject\nEnvironment","Items\nEnviornment","Subject+Items\nEnvironment"),col = c('#EECDCD','#FDF2D0','#D3E1F1', '#F8E6D0','#D8D2E7', '#DCE9D5', '#D9D9D9'))
-barplot(out[3,],main ="Sharing: subject dummies + headline features", ylab = "AUC", names.arg=c("Subject","Items","Environment","Subject\nItems","Subject\nEnvironment","Items\nEnviornment","Subject+Items\nEnvironment"),col = c('#EECDCD','#FDF2D0','#D3E1F1', '#F8E6D0','#D8D2E7', '#DCE9D5', '#D9D9D9'))
-barplot(out[4,],main ="Sharing: subject features + headline dummies",ylab = "AUC", names.arg=c("Subject","Items","Environment","Subject\nItems","Subject\nEnvironment","Items\nEnviornment","Subject+Items\nEnvironment"),col = c('#EECDCD','#FDF2D0','#D3E1F1', '#F8E6D0','#D8D2E7', '#DCE9D5', '#D9D9D9'))
+barplot(out[3,]-0.5, offset =0.5, main ="Sharing: subject dummies + headline features", ylab = "AUC", names.arg=c("Subject","Items","Environment","Subject\nItems","Subject\nEnvironment","Items\nEnviornment","Subject+Items\nEnvironment"),col = c('#EECDCD','#FDF2D0','#D3E1F1', '#F8E6D0','#D8D2E7', '#DCE9D5', '#D9D9D9'))
+barplot(out[4,]-0.5, offset = 0.5, main ="Sharing: subject features + headline dummies",ylab = "AUC", names.arg=c("Subject","Items","Environment","Subject\nItems","Subject\nEnvironment","Items\nEnviornment","Subject+Items\nEnvironment"),col = c('#EECDCD','#FDF2D0','#D3E1F1', '#F8E6D0','#D8D2E7', '#DCE9D5', '#D9D9D9'))
+
+f <- as.formula(paste("train_subject_ldwell", "~", paste(user_vars , collapse=" + "), sep=" "))
+rf <- randomForest(f, data=yourfit %>% filter(is_train), ntree=50, mtry=mtry, importance=TRUE)
+p <- predict(rf, yourfit%>% filter(!is_train))
+out <- cor(p,yourfit[!yourfit$is_train,"train_subject_ldwell"])
+
+f <- as.formula(paste("train_item_ldwell", "~", paste(item_vars , collapse=" + "), sep=" "))
+rf <- randomForest(f, data=yourfit %>% filter(is_train), ntree=50, mtry=mtry, importance=TRUE)
+p <- predict(rf, yourfit%>% filter(!is_train))
+cor(p,yourfit[!yourfit$is_train,"train_item_ldwell"])
+
+rf1 <- do_rf("ldwell",  user_factors = "dummies",environment_factors = "features", item_factors = "features", name = "subject_dummies_headline_features_environment_features", return_model = T); varImpPlot(rf1)
+rf2 <-do_rf("ldwell",  user_factors = "features",environment_factors = "features", item_factors = "dummies", name = "subject_features_headline_dummies_environment_features", return_model = T); varImpPlot(rf2)
+rf3 <-do_rf("response",  user_factors = "dummies",environment_factors = "features", item_factors = "features", name = "subject_dummies_headline_features_environment_features", return_model = T); varImpPlot(rf3)
+rf4 <- do_rf("response",  user_factors = "features",environment_factors = "features", item_factors = "dummies", name = "subject_features_headline_dummies_environment_features", return_model = T); varImpPlot(rf4)
