@@ -6,7 +6,7 @@ setwd("/home/groh/github/yourfeed_analysis/R")
 options("scipen"=100, "digits"=4)
 
 
-pretest <- read_excel("../data/static/20210129 pretest.xlsx")
+pretest <- read_excel("../data/static/20210129pretest.xlsx")
 item_level <-read_csv("../data/static/yourfeed_item_level.csv")
 
 
