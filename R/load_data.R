@@ -32,6 +32,7 @@ for (c in cov){
 
 long_data_url <- "https://www.dropbox.com/s/xd0i4dse47nggmt/soft_long.csv?dl=1"
 long_raw <- read_csv(long_data_url)
+
 long_raw$crt <- (as.numeric(long_raw$crt_ages == 4) + as.numeric(long_raw$crt_printer == 10) + as.numeric(long_raw$crt_bread == 39) + as.numeric(long_raw$crt_race == 2) + as.numeric(long_raw$crt_sheep == 8))/5
 
 long <- long_raw %>% mutate(
